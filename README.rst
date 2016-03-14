@@ -149,7 +149,7 @@ Translating models using ModelTranslations
 ``ModelTranslations`` is a simple dict with some useful methods and properties added on top. Nothing is required,
 but if you specify ``labels`` or ``help_texts``, the keys of those dictionaries should refer to existing model fields.
 
---------------------------+--------+--------------+-------------------------+
++-------------------------+--------+--------------+-------------------------+
 | ModelTranslations key   | Type   | Maps to      | Attribute               |
 +=========================+========+==============+=========================+
 | ``labels``              | dict   | model field  | ``verbose_name``        |
