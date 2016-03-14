@@ -31,7 +31,7 @@ Imagine our ``bookstore`` models look like this::
     class Book(models.Model):
         title = models.CharField(max_length=200)
         published_on = models.DateField(blank=True, null=True)
-        isbn = models.CharField(max_length=50)
+        isbn = models.CharField(max_length=50, unique=True)
         authors = models.ManyToManyField(Author)
 
 
@@ -60,7 +60,7 @@ So you end up with this::
     class Book(models.Model):
         title = models.CharField(pgettext_lazy('book', 'title'), max_length=200)
         published_on = models.DateField(pgettext_lazy('book (date)', 'published'), blank=True, null=True)
-        isbn = models.CharField(pgettext_lazy('book', 'isbn'), max_length=50)
+        isbn = models.CharField(pgettext_lazy('book', 'isbn'), max_length=50, unique=True)
         authors = models.ManyToManyField(Author, verbose_name=pgettext_lazy('book authors', 'authors'))
 
         class Meta:
@@ -69,9 +69,9 @@ So you end up with this::
 
 
 Now add in help text and you've got a lot of noise, making it hard to discern the attributes you as a programmer
-care about most when developing, like the maximum length and whether a field is optional.
+care about most when developing, like the maximum length and whether a field is optional or unique.
 
-Labeler will enable apps to use i18nized strings with less noise. Let's move the strings to a separate file
+Labeler will enable apps to use translatable strings with less noise. Let's move the strings to a separate file
 we'll call `i18n.py` (but any name will do) and use Labeler's ``ModelTranslations``::
 
     # i18n.py
@@ -105,7 +105,7 @@ we'll call `i18n.py` (but any name will do) and use Labeler's ``ModelTranslation
         name_plural=pgettext_lazy('author model (plural)', 'Books')
     )
 
-That's still a lot of noise, but at least we've got it isolated to a single file in our app. Now, since
+That's still a lot of noise, but at least we've got it isolated to a single file in our app. Now, because
 ``ModelTranslations`` is simply an extension of ``dict``, you could start doing things like this::
 
     from . import i18n
@@ -118,11 +118,10 @@ That's still a lot of noise, but at least we've got it isolated to a single file
             verbose_name_plural = i18n.author['name_plural']
 
 But that doesn't cut down on the noise. Instead you should use the ``inject`` method/decorator of ``ModelTranslations``
-(or ``FormTranslation`` when dealing with a form). This will make our models become lean and mean::
+(or ``FormTranslations`` when dealing with a form). This will make our models become lean and mean::
 
     # models.py
     from django.db import models
-    from labeler.models import label_with
     from . import i18n
 
     @i18n.author.inject
@@ -135,44 +134,61 @@ But that doesn't cut down on the noise. Instead you should use the ``inject`` me
     @i18n.book.inject
     class Book(models.Model):
         title = models.CharField(max_length=200)
-        published_on = models.DateField(blank=True, null=True)
+        published_on = models.DateField(blank=True, null=True, unique=True)
         isbn = models.CharField(max_length=50)
         authors = models.ManyToManyField(Author)
 
 
-The above example is equivalent to our noisy example where we first introduced internationalized strings.
+Spot the difference with our initial version? This version uses translatable strings simply by decorating our models
+using ModelTranslations' ``inject``.
 
 
-Using ModelTranslations
------------------------
+Translating models using ModelTranslations
+------------------------------------------
 
 ``ModelTranslations`` is a simple dict with some useful methods and properties added on top. Nothing is required,
 but if you specify ``labels`` or ``help_texts``, the keys of those dictionaries should refer to existing model fields.
 
+--------------------------+--------+--------------+-------------------------+
+| ModelTranslations key   | Type   | Maps to      | Attribute               |
++=========================+========+==============+=========================+
+| ``labels``              | dict   | model field  | ``verbose_name``        |
++-------------------------+--------+--------------+-------------------------+
+| ``help_texts``          | dict   | model field  | ``help_text``           |
++-------------------------+--------+--------------+-------------------------+
+| ``name``                | str    | model Meta   | ``verbose_name``        |
++-------------------------+--------+--------------+-------------------------+
+| ``name_plural``         | str    | model Meta   | ``verbose_name_plural`` |
++-------------------------+--------+--------------+-------------------------+
+
+
 Example::
 
+    from django.utils.translation import ugettext_lazy as _
     from labeler import ModelTranslations
 
-    my_model = ModelTranslations(
+    article = ModelTranslations(
         labels=dict(  # verbose_name of the model's fields
-            model_field_a='Something',
-            model_field_b='Else'
+            title=_('Title'),
+            body=_('Body')
         ),
         help_texts=dict(  # help_text of the model's fields
-            model_field_a='Some help text'
+            title=_('No clickbait titles please!')
         ),
-        name='my model',  # verbose_name of the model
-        name_plural='my models',  # verbose_name_plural of the model
+        name=_('article'),  # verbose_name of the model
+        name_plural=_('articles'),  # verbose_name_plural of the model
         errors=dict(  # Handy dict of error messages for this model
-            invalid_state='Some error'
+            too_clickbaity='Please review the title.'
         ),
         messages=dict(  # Handy dict for other kinds of messages
-            congrats='Success!'
+            first_publication='Congratulations! Your first article has been published'
         ),
-        something_else='abc',  # Just a dict; add whatever you want
-        my_choices={
-            'ok': 'Great',
-            'nok': 'Eh, try again'
+        # It's just a dict; add whatever you want
+        something_else='abc',
+        publication_state={
+            'published': _('Published'),
+            'draft': _('Draft'),
+            'trashed': _('Trashed')
         }
     )
 
@@ -180,8 +196,8 @@ When everything is good and ready to go, simply inject this on your model::
 
     from . import i18n
 
-    @i18n.my_model.inject
-    class MyModel(models.Model):
+    @i18n.article.inject
+    class Article(models.Model):
         # Your fields and stuff goes here of course
 
 The nested labels, errors, and help_texts dictionaries are also available as properties. This means custom validation
@@ -189,14 +205,14 @@ might look like this::
 
     def clean_fields(self, exclude=None):
         super(MyModel, self).clean_fields(exclude)
-        if self.field not in VALID_STATE:
-            raise ValidationError({'field': i18n.my_translations.errors['invalid_state']})
+        if 'title' not in exclude and calculate_clickbait_level(self.title) > 50:
+            raise ValidationError({'field': i18n.article.errors['too_clickbaity']})
 
 If you're dealing with lots of nested dicts, you can use the ``resolve`` method::
 
 
-    hard_way = i18n.my_model.get('errors', {}).get('fieldname', {}).get('invalid', {}).get('state')
-    easier_way = i18n.my_model.resolve('errors.fieldname.invalid.state')
+    hard_way = i18n.article.get('errors', {}).get('fieldname', {}).get('invalid', {}).get('state')
+    easier_way = i18n.article.resolve('errors.fieldname.invalid.state')
     easier_way == hard_way
 
 
