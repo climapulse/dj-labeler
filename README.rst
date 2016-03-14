@@ -2,7 +2,7 @@
 Labeler
 =======
 
-The most annoying thing about Django models are their verbosity when you want to do things right. As soon as you
+The most annoying thing about Django models is their verbosity when you want to do things right. As soon as you
 have an international audience, you'll need to start marking strings for translation. Labeler was created to reduce
 the noise by externalizing a model's labels and help texts; it even provides the same functionality for any Django
 form.
@@ -192,6 +192,13 @@ might look like this::
         if self.field not in VALID_STATE:
             raise ValidationError({'field': i18n.my_translations.errors['invalid_state']})
 
+If you're dealing with lots of nested dicts, you can use the ``resolve`` method::
+
+
+    hard_way = i18n.my_model.get('errors', {}).get('fieldname', {}).get('invalid', {}).get('state')
+    easier_way = i18n.my_model.resolve('errors.fieldname.invalid.state')
+    easier_way == hard_way
+
 
 Using FormTranslations
 ----------------------
@@ -215,7 +222,7 @@ Using FormTranslations
             body='Formatting is not supported'
         ),
         empty_labels=dict(
-            author='Please select and author'
+            author='Please select an author'
         )
     )
 

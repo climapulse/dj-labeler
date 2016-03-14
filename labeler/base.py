@@ -41,6 +41,13 @@ class Translations(dict):
         """
         return self.get(key, {})
 
+    def resolve(self, path):
+        """Resolves a value using a dotted path.
+
+        Uses ``resolve_dict_value``.
+        """
+        return resolve_dict_value(self, path)
+
     @property
     def labels(self):
         """Fetches the nested dictionary ``labels``."""

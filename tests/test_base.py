@@ -30,6 +30,13 @@ class TranslationTest(SimpleTestCase):
         self.assertDictEqual(dict(b=123), Translations(a=dict(b=123)).subdict('a'))
         self.assertDictEqual({}, Translations(a=123).subdict('b'))
 
+    def test_resolve(self):
+        t = Translations(a=dict(b=dict(c=1)))
+        self.assertEqual(1, t.resolve('a.b.c'))
+        self.assertEqual(None, t.resolve('a.b.d'))
+        self.assertDictEqual(dict(c=1), t.resolve('a.b'))
+        self.assertEqual(None, t.resolve('z'))
+
     def test_labels(self):
         labels = dict(greeting='Hello', who='World')
         self.assertDictEqual(labels, Translations(labels=labels, errors={'a': 'Error'}).labels)
