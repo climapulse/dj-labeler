@@ -38,7 +38,7 @@ setup(
     license='BSD',
     keywords=['dj-labeler', 'django', 'i18n'],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Framework :: Django',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',

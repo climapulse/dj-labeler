@@ -14,6 +14,11 @@ i18n_issue_type = ModelTranslations(
         key='Technical key',
         label='Human-friendly label'
     ),
+    error_messages=dict(
+        key=dict(
+            unique='Key must be unique'
+        )
+    ),
     name='Type',
     name_plural='Types',
     errors=dict(
@@ -80,7 +85,7 @@ i18n_comment = ModelTranslations(
 
 @i18n_issue_type.inject
 class IssueType(models.Model):
-    key = models.SlugField(max_length=10)
+    key = models.SlugField(max_length=10, unique=True)
     label = models.CharField(max_length=100)
 
 

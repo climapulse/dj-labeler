@@ -57,6 +57,10 @@ class ModelTest(SimpleTestCase):
     def test_errors(self):
         self.assertEqual('Please do not use profanity', i18n_issue_type.errors['no_profanity'])
 
+    def test_error_messages(self):
+        unique_message = IssueType._meta.get_field('key').error_messages['unique']
+        self.assertEqual(unique_message, i18n_issue_type.resolve('error_messages.key.unique'))
+
     def test_messages(self):
         self.assertEqual('Thank you for reporting this issue', i18n_issue_type.messages['thankyou'])
 

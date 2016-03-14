@@ -6,7 +6,7 @@ from .base import Translations, default_dict
 def apply_to_form(fields, mapping):
     labels = mapping.get('labels', {})
     help_texts = mapping.get('help_texts', {})
-    error_messages = mapping.get('errors', {})
+    error_messages = mapping.get('error_messages', {})
     empty_labels = mapping.get('empty_labels', {})
     keys = set(list(labels) + list(help_texts) + list(error_messages) + list(empty_labels))
     for key in keys:
@@ -28,13 +28,15 @@ def apply_to_form(fields, mapping):
 class FormTranslations(Translations):
 
     def __init__(self, labels=default_dict, help_texts=default_dict, empty_labels=default_dict,
-                 errors=default_dict, messages=default_dict, **kwargs):
+                 error_messages=default_dict, errors=default_dict, messages=default_dict, **kwargs):
         if labels is not default_dict:
             kwargs['labels'] = labels
         if help_texts is not default_dict:
             kwargs['help_texts'] = help_texts
         if empty_labels is not default_dict:
             kwargs['empty_labels'] = empty_labels
+        if error_messages is not default_dict:
+            kwargs['error_messages'] = error_messages
         if errors is not default_dict:
             kwargs['errors'] = errors
         if messages is not default_dict:

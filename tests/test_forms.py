@@ -18,9 +18,14 @@ i18n_simple_issue_form = FormTranslations(
     empty_labels={
         'issue_type': 'Pick one'
     },
-    errors={
+    error_messages={
         'name': {
             'required': 'Come on! It says "Required" right below the input! Fill something in!'
+        }
+    },
+    errors={
+        'name': {
+            'null': 'Sorry, we cannot handle the name "Null"'
         }
     },
     messages={
@@ -42,7 +47,7 @@ i18n_simple_issue_form_alt = FormTranslations(
     empty_labels={
         'issue_type': 'Just pick one'
     },
-    errors={
+    error_messages={
         'name': {
             'required': 'Mate! It says "Required" right below the input! Fill something in!'
         }
@@ -72,7 +77,7 @@ class SimpleIssueFormTest(SimpleTestCase):
         form.is_valid()
         name_errors = form.errors['name']
         self.assertEqual(len(name_errors), 1)
-        expected_error = resolve_dict_value(i18n_simple_issue_form, 'errors.name.required')
+        expected_error = i18n_simple_issue_form.resolve('error_messages.name.required')
         self.assertEqual(name_errors[0], expected_error)
 
     def test_alt(self):
@@ -87,7 +92,7 @@ class SimpleIssueFormTest(SimpleTestCase):
         form.is_valid()
         name_errors = form.errors['name']
         self.assertEqual(len(name_errors), 1)
-        expected_error = resolve_dict_value(i18n_simple_issue_form_alt, 'errors.name.required')
+        expected_error = i18n_simple_issue_form_alt.resolve('error_messages.name.required')
         self.assertEqual(name_errors[0], expected_error)
 
 

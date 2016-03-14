@@ -7,15 +7,19 @@ def apply_to_model(model_class, mapping):
     meta = model_class._meta
     verbose_names = mapping.get('labels', {})
     help_texts = mapping.get('help_texts', {})
-    keys = set(list(verbose_names.keys()) + list(help_texts.keys()))
+    error_messages = mapping.get('error_messages', {})
+    keys = set(list(verbose_names.keys()) + list(help_texts.keys()) + list(error_messages.keys()))
     for key in keys:
         verbose_name = verbose_names.get(key)
         help_text = help_texts.get(key)
+        error_message_dict = error_messages.get(key)
         field = meta.get_field(key)
         if verbose_name:
             field.verbose_name = verbose_name
         if help_text:
             field.help_text = help_text
+        if error_message_dict:
+            field.error_messages.update(error_message_dict)
     singular = mapping.get('name')
     plural = mapping.get('name_plural')
     if singular:
@@ -33,7 +37,7 @@ class ModelTranslations(Translations):
     """
 
     def __init__(self, labels=default_dict, help_texts=default_dict, name=default_str, name_plural=default_str,
-                 errors=default_dict, messages=default_dict, **kwargs):
+                 error_messages=default_dict, errors=default_dict, messages=default_dict, **kwargs):
         if labels is not default_dict:
             kwargs['labels'] = labels
         if help_texts is not default_dict:
@@ -42,6 +46,8 @@ class ModelTranslations(Translations):
             kwargs['name'] = name
         if name_plural is not default_str:
             kwargs['name_plural'] = name_plural
+        if error_messages is not default_dict:
+            kwargs['error_messages'] = error_messages
         if errors is not default_dict:
             kwargs['errors'] = errors
         if messages is not default_dict:

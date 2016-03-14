@@ -4,8 +4,8 @@ Labeler
 
 The most annoying thing about Django models is their verbosity when you want to do things right. As soon as you
 have an international audience, you'll need to start marking strings for translation. Labeler was created to reduce
-the noise by externalizing a model's labels and help texts; it even provides the same functionality for any Django
-form.
+the noise by externalizing a model's labels, help texts and error messages. It even provides the same functionality
+for any Django form.
 
 Installation
 ------------
@@ -108,6 +108,8 @@ we'll call `i18n.py` (but any name will do) and use Labeler's ``ModelTranslation
 That's still a lot of noise, but at least we've got it isolated to a single file in our app. Now, because
 ``ModelTranslations`` is simply an extension of ``dict``, you could start doing things like this::
 
+    # models.py
+    from django.db import models
     from . import i18n
 
     class Author(models.Model):
@@ -118,7 +120,7 @@ That's still a lot of noise, but at least we've got it isolated to a single file
             verbose_name_plural = i18n.author['name_plural']
 
 But that doesn't cut down on the noise. Instead you should use the ``inject`` method/decorator of ``ModelTranslations``
-(or ``FormTranslations`` when dealing with a form). This will make our models become lean and mean::
+(or ``FormTranslations`` when dealing with a form). This will make our models lean and mean::
 
     # models.py
     from django.db import models
@@ -140,26 +142,29 @@ But that doesn't cut down on the noise. Instead you should use the ``inject`` me
 
 
 Spot the difference with our initial version? This version uses translatable strings simply by decorating our models
-using ModelTranslations' ``inject``.
+with our ModelTranslations' ``inject``.
 
 
 Translating models using ModelTranslations
 ------------------------------------------
 
 ``ModelTranslations`` is a simple dict with some useful methods and properties added on top. Nothing is required,
-but if you specify ``labels`` or ``help_texts``, the keys of those dictionaries should refer to existing model fields.
+but if you specify ``labels``, ``help_texts`` or ``error_messages``, the keys of those dictionaries should refer
+to existing model fields.
 
-+-------------------------+--------+--------------+-------------------------+
-| ModelTranslations key   | Type   | Maps to      | Attribute               |
-+=========================+========+==============+=========================+
-| ``labels``              | dict   | model field  | ``verbose_name``        |
-+-------------------------+--------+--------------+-------------------------+
-| ``help_texts``          | dict   | model field  | ``help_text``           |
-+-------------------------+--------+--------------+-------------------------+
-| ``name``                | str    | model Meta   | ``verbose_name``        |
-+-------------------------+--------+--------------+-------------------------+
-| ``name_plural``         | str    | model Meta   | ``verbose_name_plural`` |
-+-------------------------+--------+--------------+-------------------------+
++-------------------------+--------+-----------+-----------------------------+
+| ModelTranslations key   | Type   | Maps to   | Attribute                   |
++=========================+========+===========+=============================+
+| ``labels``              | dict   | field     | ``verbose_name``            |
++-------------------------+--------+-----------+-----------------------------+
+| ``help_texts``          | dict   | field     | ``help_text``               |
++-------------------------+--------+-----------+-----------------------------+
+| ``error_messages``      | dict   | field     | Updates ``error_messages``  |
++-------------------------+--------+-----------+-----------------------------+
+| ``name``                | str    | Meta      | ``verbose_name``            |
++-------------------------+--------+-----------+-----------------------------+
+| ``name_plural``         | str    | Meta      | ``verbose_name_plural``     |
++-------------------------+--------+-----------+-----------------------------+
 
 
 Example::
@@ -168,19 +173,31 @@ Example::
     from labeler import ModelTranslations
 
     article = ModelTranslations(
-        labels=dict(  # verbose_name of the model's fields
+        # verbose_name of the model's fields
+        labels=dict(
             title=_('Title'),
             body=_('Body')
         ),
-        help_texts=dict(  # help_text of the model's fields
+        # help_text of the model's fields
+        help_texts=dict(
             title=_('No clickbait titles please!')
         ),
-        name=_('article'),  # verbose_name of the model
-        name_plural=_('articles'),  # verbose_name_plural of the model
-        errors=dict(  # Handy dict of error messages for this model
-            too_clickbaity='Please review the title.'
+        # update to the listed fields' error_messages
+        error_messages=dict(
+            title=dict(
+                unique=_('Title already exists')
+            )
         ),
-        messages=dict(  # Handy dict for other kinds of messages
+        # verbose_name of the model
+        name=_('article'),
+        # verbose_name_plural of the model
+        name_plural=_('articles'),
+        # Handy dict of error messages for this model, not field-specific
+        errors=dict(
+            too_clickbaity='Please review the article.'
+        ),
+        # Handy dict for other kinds of messages
+        messages=dict(
             first_publication='Congratulations! Your first article has been published'
         ),
         # It's just a dict; add whatever you want
@@ -192,16 +209,16 @@ Example::
         }
     )
 
-When everything is good and ready to go, simply inject this on your model::
+When everything is good and ready to go, simply inject this into your model::
 
     from . import i18n
 
     @i18n.article.inject
     class Article(models.Model):
-        # Your fields and stuff goes here of course
+        # Fields and stuff
 
-The nested labels, errors, and help_texts dictionaries are also available as properties. This means custom validation
-might look like this::
+The nested labels, error_messages, errors, messages, and help_texts dictionaries are also available as properties.
+This means custom validation might look like this::
 
     def clean_fields(self, exclude=None):
         super(MyModel, self).clean_fields(exclude)
@@ -210,35 +227,55 @@ might look like this::
 
 If you're dealing with lots of nested dicts, you can use the ``resolve`` method::
 
-
     hard_way = i18n.article.get('errors', {}).get('fieldname', {}).get('invalid', {}).get('state')
     easier_way = i18n.article.resolve('errors.fieldname.invalid.state')
     easier_way == hard_way
 
 
-Using FormTranslations
-----------------------
+Translating forms using FormTranslations
+----------------------------------------
 
 ``FormTranslations`` works exactly like ``ModelTranslations``, but it also supports a nested dictionary
-``empty_labels`` to override the default empty label on form fields. Usage::
+``empty_labels`` to override the default empty label on form fields.
+
++-------------------------+--------+-----------+----------------------------+
+| FormTranslations key    | Type   | Maps to   | Attribute                  |
++=========================+========+===========+============================+
+| ``labels``              | dict   | field     | ``label``                  |
++-------------------------+--------+-----------+----------------------------+
+| ``help_texts``          | dict   | field     | ``help_text``              |
++-------------------------+--------+-----------+----------------------------+
+| ``empty_labels``        | dict   | field     | ``empty_label``            |
++-------------------------+--------+-----------+----------------------------+
+| ``error_messages``      | dict   | field     | Updates ``error_messages`` |
++-------------------------+--------+-----------+----------------------------+
+
+
+Usage::
 
 
     # i18n.py
+    from django.utils.translation import ugettext_lazy as _
     from labeler import FormTranslations
 
     article_form = FormTranslations(
         labels=dict(
-            title='Title goes here',
-            body='Text goes here',
-            published='When to publish this article',
-            author='Author',
+            title=_('Title'),
+            body=_('Body'),
+            published=_('When to publish this article'),
+            author=_('Author'),
         ),
         help_texts=dict(
-            title='Limit to 100 characters please',
-            body='Formatting is not supported'
+            title=_('Limit to 100 characters please'),
+            body=_('Formatting is not supported')
         ),
         empty_labels=dict(
-            author='Please select an author'
+            author=_('Please select an author')
+        ),
+        error_messages=dict(
+            title=dict(
+                unique=_('That title has already been used. Be more original!')
+            )
         )
     )
 

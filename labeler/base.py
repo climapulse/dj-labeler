@@ -59,6 +59,11 @@ class Translations(dict):
         return self.subdict('errors')
 
     @property
+    def error_messages(self):
+        """Fetches the nested dictionary ``error_messages``."""
+        return self.subdict('error_messages')
+
+    @property
     def messages(self):
         """Fetches the nested dictionary ``messages``."""
         return self.subdict('messages')

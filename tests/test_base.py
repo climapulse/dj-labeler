@@ -47,6 +47,11 @@ class TranslationTest(SimpleTestCase):
         self.assertDictEqual(errors, Translations(errors=errors).errors)
         self.assertDictEqual({}, Translations().errors)
 
+    def test_error_messages(self):
+        error_messages = dict(some_field=dict(invalid='Invalid', required='Required'))
+        self.assertDictEqual(error_messages, Translations(error_messages=error_messages).error_messages)
+        self.assertDictEqual({}, Translations().error_messages)
+
     def test_messages(self):
         messages = dict(invalid='Invalid', required='Required')
         self.assertDictEqual(messages, Translations(messages=messages).messages)
