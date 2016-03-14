@@ -194,11 +194,11 @@ Example::
         name_plural=_('articles'),
         # Handy dict of error messages for this model, not field-specific
         errors=dict(
-            too_clickbaity='Please review the article.'
+            too_clickbaity=_('Please review the article.')
         ),
         # Handy dict for other kinds of messages
         messages=dict(
-            first_publication='Congratulations! Your first article has been published'
+            first_publication=_('Congratulations! Your first article has been published')
         ),
         # It's just a dict; add whatever you want
         something_else='abc',
