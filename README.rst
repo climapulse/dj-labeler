@@ -223,7 +223,7 @@ This means custom validation might look like this::
     def clean_fields(self, exclude=None):
         super(MyModel, self).clean_fields(exclude)
         if 'title' not in exclude and calculate_clickbait_level(self.title) > 50:
-            raise ValidationError({'field': i18n.article.errors['too_clickbaity']})
+            raise ValidationError({'title': i18n.article.errors['too_clickbaity']})
 
 If you're dealing with lots of nested dicts, you can use the ``resolve`` method::
 
