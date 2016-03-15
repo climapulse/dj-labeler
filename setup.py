@@ -27,7 +27,7 @@ setup(
     long_description=README,
     author='Climapulse NV',
     author_email='kevin.wetzels@climapulse.com',
-    url='https://github.com/climapulse/django-labeler',
+    url='https://github.com/climapulse/dj-labeler',
     packages=[
         'labeler'
     ],
