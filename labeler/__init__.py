@@ -5,5 +5,5 @@ from .forms import FormTranslations, apply_to_form
 from .models import ModelTranslations, apply_to_model
 
 
-VERSION = (1, 0, 0)
+VERSION = (1, 0, 1)
 __version__ = '.'.join(['%s' % s for s in VERSION])
