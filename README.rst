@@ -7,6 +7,8 @@ have an international audience, you'll need to start marking strings for transla
 the noise by externalizing a model's labels, help texts and error messages. It even provides the same functionality
 for any Django form.
 
+It's expected to work with Django 1.8, 1.9 and up.
+
 Installation
 ------------
 
