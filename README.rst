@@ -145,8 +145,12 @@ Spot the difference with our initial version? This version uses translatable str
 with our ModelTranslations' ``inject``.
 
 
+Usage
+-----
+
+
 Translating models using ModelTranslations
-------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``ModelTranslations`` is a simple dict with some useful methods and properties added on top. Nothing is required,
 but if you specify ``labels``, ``help_texts`` or ``error_messages``, the keys of those dictionaries should refer
@@ -233,7 +237,7 @@ If you're dealing with lots of nested dicts, you can use the ``resolve`` method:
 
 
 Translating forms using FormTranslations
-----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``FormTranslations`` works exactly like ``ModelTranslations``, but it also supports a nested dictionary
 ``empty_labels`` to override the default empty label on form fields.
@@ -293,3 +297,11 @@ Usage::
 
 
 That's all there is to it.
+
+Changelog
+---------
+
+v1.0.1
+^^^^^^
+
+- Fixes to code in the README and project information
