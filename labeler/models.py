@@ -14,17 +14,17 @@ def apply_to_model(model_class, mapping):
         help_text = help_texts.get(key)
         error_message_dict = error_messages.get(key)
         field = meta.get_field(key)
-        if verbose_name:
+        if verbose_name is not None:
             field.verbose_name = verbose_name
-        if help_text:
+        if help_text is not None:
             field.help_text = help_text
         if error_message_dict:
             field.error_messages.update(error_message_dict)
     singular = mapping.get('name')
-    plural = mapping.get('name_plural')
-    if singular:
+    if singular is not None:
         meta.verbose_name = singular
-    if plural:
+    plural = mapping.get('name_plural')
+    if plural is not None:
         meta.verbose_name_plural = plural
 
 

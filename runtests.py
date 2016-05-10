@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function, division, absolute_import
-from django import VERSION
 from django.conf import settings
 from django.core.management import execute_from_command_line
 import sys

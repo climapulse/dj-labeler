@@ -15,11 +15,11 @@ def apply_to_form(fields, mapping):
         error_dict = error_messages.get(key)
         empty_label = empty_labels.get(key)
         field = fields[key]
-        if label:
+        if label is not None:
             field.label = label
-        if help_text:
+        if help_text is not None:
             field.help_text = help_text
-        if empty_label:
+        if empty_label is not None:
             field.empty_label = empty_label
         if error_dict and field.error_messages is not None:
             field.error_messages.update(error_dict)
